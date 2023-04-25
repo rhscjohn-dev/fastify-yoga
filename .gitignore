@@ -4,15 +4,14 @@ node_modules/
 *.env
 
 # Logs folder
-Logs/*
-!Logs/.getkeep
+Logs/**/*.log
+Logs/**/*.json
 # NPVR folder(s)
-NPVR/*
-!NPVR/.getkeep
-NPVR/media/channels/*
-!NPVR/media/channels/.getkeep
-NPVR/media/shows/*
-!NPVR/media/shows/.getkeep
+NPVR/*.xml
+NPVR/*.db3
+NPVR/media/**/*.jpg
+NPVR/media/**/*.xml
+NPVR/media/**/*.png
 #transCoding folder
-Stream/*
-!Stream/.gitkeep
+Stream/**/*.m3u8
+Stream/**/*.ts
