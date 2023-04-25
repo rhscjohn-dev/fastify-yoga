@@ -9,6 +9,7 @@ Logs/**/*.json
 # NPVR folder(s)
 NPVR/*.xml
 NPVR/*.db3
+!NPVR/.getkeep
 NPVR/media/**/*.jpg
 NPVR/media/**/*.xml
 NPVR/media/**/*.png
