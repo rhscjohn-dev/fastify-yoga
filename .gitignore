@@ -15,4 +15,4 @@ NPVR/media/**/*.png
 #transCoding folder
 Stream/**/*.m3u8
 Stream/**/*.ts
-!Stream/
+!Stream/.getkeep
