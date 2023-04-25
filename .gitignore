@@ -9,8 +9,8 @@ Logs/*
 # NPVR folder(s)
 NPVR/*
 !NPVR/.getkeep
-NPVR/media/channels/*
-!NPVR/media/channels/.getkeep
+#NPVR/media/channels/*
+NPVR/media/channels/
 NPVR/media/shows/*
 !NPVR/media/shows/.getkeep
 #transCoding folder
