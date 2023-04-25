@@ -4,8 +4,9 @@ node_modules/
 *.env
 
 # Logs folder
-/Logs
+Logs/**
 # NPVR folder(s)
-/NPVR
+NPVR/**
+!NPVR/**/
 #transCoding sfolder
-/Stream
+Stream/**
