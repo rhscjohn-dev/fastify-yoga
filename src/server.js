@@ -16,7 +16,20 @@ const fs = require('fs')
 
 const logger = require("./logger")
 const label = path.basename(__filename);
+
+// document the environment
+logger.transports.forEach(transport => {
+  logger.info(`Logger: Name - ${transport.name}, Level - ${transport.level}, dirname - ${transport.dirname}, filename -${transport.filename}`, { label })
+})
 logger.info(`NODE_ENV: ${process.env.NODE_ENV}`, { label })
+if (process.env.NODE_ENV === 'production') {
+  console.info(`NODE_ENV: ${process.env.NODE_ENV}`, { label })
+}
+logger.verbose('dotenv: %o', dotenv.parsed, { label })
+logger.debug(`__dirname contains: ${__dirname}`, { label });
+logger.info(`OS type: ${os.type}`, { label })
+logger.info(`OS hostname: ${os.hostname}`, { label })
+logger.info(`IP: ${ip.address()}`, { label });
 
 
 // set up the fastify server
