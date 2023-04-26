@@ -1,24 +1,27 @@
-// Require the framework and instantiate it
-import Fastify from 'fastify'
-import cors from '@fastify/cors'
-import * as dotenv from 'dotenv'
-
-
+//  get the correct dotenv loaded
+let dotenv
 if (process.env.NODE_ENV === 'production') {
-  dotenv.config({ path: `${process.cwd()}/prod.env` })
+  dotenv = require('dotenv').config({ path: `${process.cwd()}/prod.env` })
 } else {
   process.env.NODE_ENV = 'development'
-  dotenv.config({ path: `${process.cwd()}/dev.env` })
+  dotenv = require('dotenv').config({ path: `${process.cwd()}/dev.env` })
 }
-console.log("process.env: ", process.env)
-const app = Fastify({
-  logger: false
-})
-await app.register(cors, {
-  origin: '*',
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"]
-})
 
+const os = require('os');
+const ip = require('ip')
+// const util = require('./utils');
+const path = require('path');
+const fs = require('fs')
+// const NodeCache = require("node-cache");
+
+const logger = require("./logger")
+const label = path.basename(__filename);
+logger.info(`NODE_ENV: ${process.env.NODE_ENV}`, { label })
+
+
+// set up the fastify server
+// const autoload = require('@fastify/autoload')
+const app = require('fastify')({ logger: false })
 // Declare a route
 app.get('/', async (request, reply) => {
   return { hello: 'world' }
