@@ -31,7 +31,24 @@ logger.info(`OS type: ${os.type}`, { label })
 logger.info(`OS hostname: ${os.hostname}`, { label })
 logger.info(`IP: ${ip.address()}`, { label });
 
-
+// verify existence of ffmpeg folder
+fs.stat(process.env.FFMPEG_PATH, (err) => {
+  if (!err) {
+    logger.info('ffmpeg path exists.', { label });
+  }
+  else {
+    logger.error(`ffmpeg path: ${process.env.FFMPEG_PATH} does not exist! Error:`, err, { label });
+  }
+})
+// verify existence of QSVEnc folder
+fs.stat(process.env.QSVENC_PATH, (err) => {
+  if (!err) {
+    logger.info('QSVEnc path exists.', { label });
+  }
+  else {
+    logger.error(`QSVEnc path: ${process.env.QSVENC_PATH} does not exist! Error:`, err, { label });
+  }
+})
 // set up the fastify server
 // const autoload = require('@fastify/autoload')
 const app = require('fastify')({ logger: false })
