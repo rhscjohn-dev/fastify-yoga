@@ -29,11 +29,22 @@ app.get('/', async (request, reply) => {
 
 // Run the server!
 const start = async () => {
+  let host = "localhost"
+  if (process.env.NODE_ENV === 'production') {
+    host = ip.address()
+  }
   try {
-    const resp = await app.listen({ port: 4000 })
-    console.info("server listening on: ", resp)
+    app.listen({ port: process.env.PORT, host: host })
+    logger.info(
+      `Server ready at http://${host}:${process.env.PORT}`,
+      { label }
+    )
+    if (process.env.NODE_ENV === 'production') {
+      console.info(
+        `Server ready at http://${host}:${process.env.PORT} `, { label })
+    }
   } catch (err) {
-    console.error(err)
+    logger.error('Fastify ERROR', err, { label })
     process.exit(1)
   }
 }
