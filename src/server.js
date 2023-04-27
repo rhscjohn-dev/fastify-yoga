@@ -65,6 +65,20 @@ if (memCache.set('Users', Users = new Map(), 0)) {
 } else {
   logger.error(`In-memory DB for Users failed in Node-Cache!`, { label })
 }
+process.on('SIGINT', () => {
+  logger.info('SIGINT signal received.', { label });
+  logger.info('nodeCache statistics: %o', memCache.getStats(), { label })
+  memCache.flushAll()
+  logger.info('Closing fastify server.', { label });
+  logger.end()
+  app.close().then(() => {
+    console.log('fastify.close successfully closed!')
+  }, (err) => {
+    console.error('fastify.close - an error happened', err)
+  })
+  //close database ?
+});
+
 // set up the fastify server
 // const autoload = require('@fastify/autoload')
 const app = require('fastify')({ logger: false })
