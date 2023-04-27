@@ -7,13 +7,12 @@ if (process.env.NODE_ENV === 'production') {
   dotenv = require('dotenv').config({ path: `${process.cwd()}/dev.env` })
 }
 
-const os = require('os');
+const os = require('node:os');
 const ip = require('ip')
-// const util = require('./utils');
-const path = require('path');
-const fs = require('fs')
-// const NodeCache = require("node-cache");
-
+const path = require('node:path');
+const { statSync } = require('node:fs')
+const { childProcessExecFile } = require('./utils');
+const { memCache } = require("./nodeCache");
 const logger = require("./logger")
 const label = path.basename(__filename);
 
@@ -32,23 +31,40 @@ logger.info(`OS hostname: ${os.hostname}`, { label })
 logger.info(`IP: ${ip.address()}`, { label });
 
 // verify existence of ffmpeg folder
-fs.stat(process.env.FFMPEG_PATH, (err) => {
-  if (!err) {
-    logger.info('ffmpeg path exists.', { label });
-  }
-  else {
-    logger.error(`ffmpeg path: ${process.env.FFMPEG_PATH} does not exist! Error:`, err, { label });
-  }
-})
+try {
+  statSync(process.env.FFMPEG_PATH)
+  logger.info('ffmpeg path exists.', { label });
+}
+catch (err) {
+  logger.error(`ffmpeg path: ${process.env.FFMPEG_PATH} does not exist! `, err, { label });
+}
 // verify existence of QSVEnc folder
-fs.stat(process.env.QSVENC_PATH, (err) => {
-  if (!err) {
-    logger.info('QSVEnc path exists.', { label });
-  }
-  else {
-    logger.error(`QSVEnc path: ${process.env.QSVENC_PATH} does not exist! Error:`, err, { label });
-  }
-})
+try {
+  statSync(process.env.QSVENC_PATH)
+  logger.info('QSVEnc path exists.', { label });
+} catch (err) {
+  logger.error(`QSVEnc path: ${process.env.QSVENC_PATH} does not exist! `, err, { label });
+}
+// Verify that the interface to Node Child process function: child_process.execFile(file[, args][, options][, callback])
+// is working
+if (process.env.NODE_ENV === 'development') {
+  childProcessExecFile('node', ['--version'])
+    .then(response => {
+      logger.info(`child-process[node] resp: ${response.child.exitCode} ${response.stdout}`, { label })
+    })
+    .catch(err => {
+      logger.error(`child-process[node] error:`, err, { label })
+    })
+}
+//setup NodeCache
+logger.info('Setting up NodeCache ...', { label });
+logger.info('NodeCache statistics: %o', memCache.getStats(), { label })
+// setup Users in  NodeCache
+if (memCache.set('Users', Users = new Map(), 0)) {
+  logger.info(`In-memory DB for Users created in NodeCache`, { label })
+} else {
+  logger.error(`In-memory DB for Users failed in Node-Cache!`, { label })
+}
 // set up the fastify server
 // const autoload = require('@fastify/autoload')
 const app = require('fastify')({ logger: false })
