@@ -65,27 +65,50 @@ if (memCache.set('Users', Users = new Map(), 0)) {
 } else {
   logger.error(`In-memory DB for Users failed in Node-Cache!`, { label })
 }
-process.on('SIGINT', () => {
-  logger.info('SIGINT signal received.', { label });
-  logger.info('nodeCache statistics: %o', memCache.getStats(), { label })
-  memCache.flushAll()
-  logger.info('Closing fastify server.', { label });
-  logger.end()
-  app.close().then(() => {
-    console.log('fastify.close successfully closed!')
-  }, (err) => {
-    console.error('fastify.close - an error happened', err)
-  })
-  //close database ?
-});
+
 
 // set up the fastify server
-// const autoload = require('@fastify/autoload')
-const app = require('fastify')({ logger: false })
-// Declare a route
-app.get('/', async (request, reply) => {
-  return { hello: 'world' }
+const Autoload = require('@fastify/autoload')
+const app = require('fastify')({
+  logger: false,
 })
+// fastify serve static image(s) 
+logger.info('Setting up Fastify serving static files', { label });
+const appDir = process.cwd()
+const srcDir = path.dirname(require.main.filename);
+logger.info('appDir: %s', appDir, { label });
+logger.info('srcDir: %s', srcDir, { label });
+const pathChannelLogos = process.env.NODE_ENV === 'development' ? path.join(appDir, process.env.PATH_NPVR, process.env.PATH_CHANNEL) : path.join(process.env.PATH_NPVR, process.env.PATH_CHANNEL)
+const pathArtwork = process.env.NODE_ENV === 'development' ? path.join(appDir, process.env.PATH_NPVR, process.env.PATH_ARTWORK) : path.join(process.env.PATH_NPVR, process.env.PATH_ARTWORK)
+const pathStreaming = path.join(appDir, 'Stream')
+logger.info('Fastify static path(/channel/): %s', pathChannelLogos, { label });
+logger.info('Fastify static path(/shows/): %s', pathArtwork, { label });
+logger.info('Fastify static path(/Stream/) live streaming: %s', pathStreaming, { label })
+app.register(require('@fastify/static'), { root: pathChannelLogos, prefix: '/channels/', decorateReply: true, maxAge: '2h' })
+app.register(require('@fastify/static'), { root: pathArtwork, prefix: '/shows/', decorateReply: false, maxAge: '5m' })
+app.register(require('@fastify/static'), { root: pathStreaming, prefix: '/Stream/', decorateReply: false, maxAge: false, etag: false })
+// serve favicon
+app.register(require('fastify-favicon'))
+//  cors
+app.register(require('@fastify/cors'), {
+  orgin: '*'
+})
+// fastify routes
+app.register(Autoload, { dir: path.join(__dirname, 'routes') })
+// fastify hooks
+app.addHook('onRequest', async (req, reply) => {
+  logger.info(`Id: ${req.id} REQ ${req.routerMethod} Url: ${req.url} Path: ${req.routerPath} Params: ${JSON.stringify(req.params)} Query: ${JSON.stringify(req.query)} `, { label })
+})
+  .addHook('onResponse', async (req, reply) => {
+    const symbol = Object.getOwnPropertySymbols(reply).find(s => {
+      return String(s) === 'Symbol(fastify.reply.headers)'
+    })
+    const type = reply[symbol]?.['content-type']
+    const length = reply[symbol]?.['content-length']
+    const responseTime = reply.getResponseTime().toFixed(3)
+    logger.info(`Id: ${req.id} REPLY ${reply.statusCode} Time: ${responseTime} Type: ${type} Length: ${length}`, { label })
+
+  })
 
 // Run the server!
 const start = async () => {
@@ -109,3 +132,17 @@ const start = async () => {
   }
 }
 start()
+//graceful shutdown of server(ctrl+c)
+process.on('SIGINT', () => {
+  logger.info('SIGINT signal received.', { label });
+  logger.info('nodeCache statistics: %o', memCache.getStats(), { label })
+  memCache.flushAll()
+  logger.info('Closing fastify server.', { label });
+  logger.end()
+  app.close().then(() => {
+    console.log('fastify.close - successful!')
+  }, (err) => {
+    console.error('fastify.close - an error happened', err)
+  })
+  //close database ?
+});

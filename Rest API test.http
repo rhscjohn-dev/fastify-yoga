@@ -1,2 +1,26 @@
-### test fastify
-GET http://localhost:3000
+### is fastify working ({hello: John})
+GET http://localhost:4000/helloWorld?name=John
+
+### is fastify working ({hello: fastify})
+GET http://localhost:4000/helloWorld
+
+### static image from media/channel
+get http://localhost:4000/channels/Bounce.png
+
+### static image from media/shows
+get http://localhost:4000/shows/Young%20Sheldon_02642239.jpg
+
+###Live transcode channel using QSVenc
+GET http://localhost:4000/live?channel=3.1&transcoder=qsvenc
+
+###Live transcode channel using ffmpeg
+GET http://localhost:4000/live?channel=3.1&transcoder=ffmpeg
+
+### Live delete channel file(transcoded) and kill pid
+DELETE http://localhost:4000/live?pid=5384&file=3.1_0_Master.m3u8
+
+###Live transcode file using ffmpeg
+GET http://localhost:4000/live?file=D:\Users\Public\Recorded%20TV\Young%20Sheldon\Young%20Sheldon.S05E22.A%20Clogged%20Pore,%20a%20Little%20Spanish%20and%20the%20Future.ts
+
+### Live delete file(transcoded) and kill pid
+DELETE http://localhost:4000/live?pid=6876&file=Young%20Sheldon.S05E22.A%20Clogged%20Pore,%20a%20Little%20Spanish%20and%20the%20Future_Master.m3u8

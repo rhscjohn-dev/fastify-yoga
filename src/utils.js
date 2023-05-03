@@ -3,7 +3,7 @@ const { readdirSync } = require('node:fs')
 const path = require('node:path');
 const { execFile } = require('node:child_process')
 const os = require('node:os')
-// const { format, differenceInSeconds } = require('date-fns');
+const { Duration } = require('luxon');
 // const { parseResolveInfo, getAliasFromResolveInfo } = require('graphql-parse-resolve-info')
 const { memCache } = require('./nodeCache')
 const xml2js = require('xml2js')
@@ -532,7 +532,8 @@ function ffmpeg (inputFile, query, metaData, bitRates) {
   const maxBitRate = Math.trunc(bitRate * 1.10)
   const bufferSize = Math.trunc(bitRate * 1.50)
 
-  logger.info(`Video - codec: ${videoStream[0].codec_name}, codec type: ${videoStream[0].codec_type} profile: ${videoStream[0].profile}, duration: ${isChannel ? "n/a" : format(new Date(0, 0, 1, 0, 0, videoStream[0].duration), "H:mm:ss")}
+  logger.info(`Video - codec: ${videoStream[0].codec_name}, codec type: ${videoStream[0].codec_type} 
+                profile: ${videoStream[0].profile}, duration: ${isChannel ? "n/a" : Duration.fromMillis(videoStream[0].duration * 1000).toFormat("h:mm:ss")}
                 width: ${videoStream[0].width}, height: ${videoStream[0].height} closed captions: ${videoStream[0].closed_captions}, isProgressive: ${isProgressive}`, { label })
 
   //process audio stream(s) and build ffmpeg audio options
@@ -643,7 +644,7 @@ function qsvenc (inputFile, query, metaData, bitRates) {
   const bufferSize = Math.trunc(bitRate * 1.50)
 
   logger.info(`Video - codec: ${videoStream[0].codec_name}, codec type: ${videoStream[0].codec_type}
-                profile: ${videoStream[0].profile}, duration: ${isChannel ? "n/a" : format(new Date(0, 0, 1, 0, 0, videoStream[0].duration), "H:mm:ss")}
+                profile: ${videoStream[0].profile}, duration: ${isChannel ? "n/a" : Duration.fromMillis(videoStream[0].duration * 1000).toFormat("h:mm:ss")}
                 width: ${videoStream[0].width}, height: ${videoStream[0].height}
                 closed captions: ${videoStream[0].closed_captions}, isProgressive: ${isProgressive}`, { label })
 
